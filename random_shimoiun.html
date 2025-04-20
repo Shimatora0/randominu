@@ -47,7 +47,6 @@
     const charElements = [];
     const intervals = [];
     let spinning = false;
-    const finalChars = [];
 
     for (let i = 0; i < 7; i++) {
       charElements[i] = document.getElementById(`c${i}`);
@@ -57,20 +56,29 @@
       if (spinning) return;
       spinning = true;
       document.getElementById('startButton').disabled = true;
+
+      // スピン音再生
+      document.getElementById('spinSound').currentTime = 0;
       document.getElementById('spinSound').play();
 
+      // すべて回転スタート
       for (let i = 0; i < 7; i++) {
         intervals[i] = startSpinning(i);
       }
 
       await delay(1000);
 
+      // 1文字ずつ順番に止める（ランダム）
       for (let i = 0; i < 7; i++) {
         await delay(500);
         stopSpinning(i);
       }
 
+      // ドキドキさせてから停止音
+      await delay(500);
+      document.getElementById('stopSound').currentTime = 0;
       document.getElementById('stopSound').play();
+
       document.getElementById('startButton').disabled = false;
       spinning = false;
     });
@@ -84,8 +92,8 @@
 
     function stopSpinning(index) {
       clearInterval(intervals[index]);
-      const finalChar = baseChars[Math.floor(Math.random() * baseChars.length)];
-      charElements[index].textContent = finalChar;
+      // 確定せず、ランダムにまま停止（純粋ランダム）
+      // 何も追加しないことで、最後に表示されていた文字がそのまま確定になる
     }
 
     function delay(ms) {
