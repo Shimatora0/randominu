@@ -39,50 +39,49 @@
   <button id="startButton">スタート</button>
 
   <!-- 音声ファイルを追加 -->
-  <audio id="spinSound" src="audio/ドラムロール.mp3" preload="auto"></audio>
-  <audio id="stopSound" src="audio/ジャン！.mp3" preload="auto"></audio>
+  <audio id="spinSound" src="ドラムロール.mp3" preload="auto"></audio>
+  <audio id="stopSound" src="ジャン！.mp3" preload="auto"></audio>
 
   <script>
     const baseChars = ["し", "も", "い", "ぬ", "れ", "い", "な"];
     const charElements = [];
     const intervals = [];
+    let spinning = false;
 
     for (let i = 0; i < 7; i++) {
       charElements[i] = document.getElementById(`c${i}`);
     }
 
     document.getElementById('startButton').addEventListener('click', async () => {
+      if (spinning) return;  // すでに回転している場合は何もしない
+      spinning = true;
       document.getElementById('startButton').disabled = true;
 
-      // 音声ファイルが読み込まれていない場合は、読み込む
-      const spinSound = document.getElementById('spinSound');
-      const stopSound = document.getElementById('stopSound');
-
-      // ドラムロールの音を再生
-      spinSound.play().catch((err) => console.error("音声エラー:", err));
+      // スピン音を再生
+      document.getElementById('spinSound').play();
 
       // 最初にすべて回転させる
       for (let i = 0; i < 7; i++) {
         intervals[i] = startSpinning(i);
       }
 
-      // ドラムロール音の終了を待つ
-      spinSound.addEventListener('ended', async () => {
-        // 停止音を再生
-        stopSound.play().catch((err) => console.error("音声エラー:", err));
+      // 1秒ごとに順番に1文字ずつ確定させる
+      await delay(1000);
 
-        // 回転を停止
-        for (let i = 0; i < 7; i++) {
-          stopSpinning(i);
-        }
+      // 順番に停止させる
+      for (let i = 0; i < 7; i++) {
+        await delay(500); // 文字ごとに待機
+        stopSpinning(i);
+      }
 
-        // ボタンを再度有効にする
-        document.getElementById('startButton').disabled = false;
-      });
+      // 停止音を再生
+      document.getElementById('stopSound').play();
+
+      document.getElementById('startButton').disabled = false;
+      spinning = false;
     });
 
     function startSpinning(index) {
-      // ランダムに文字を回転させる
       return setInterval(() => {
         const randomChar = baseChars[Math.floor(Math.random() * baseChars.length)];
         charElements[index].textContent = randomChar;
@@ -90,12 +89,9 @@
     }
 
     function stopSpinning(index) {
-      // 回転を止めて、最終的な文字を確定させる
       clearInterval(intervals[index]);
-
-      // 最後に確定するランダム文字を選択
-      const finalChar = baseChars[Math.floor(Math.random() * baseChars.length)];
-      charElements[index].textContent = finalChar;
+      // その文字を最終的に確定させる
+      charElements[index].textContent = baseChars[index];
     }
 
     function delay(ms) {
