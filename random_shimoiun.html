@@ -47,54 +47,45 @@
     const charElements = [];
     const intervals = [];
     let spinning = false;
+    const finalChars = [];
 
     for (let i = 0; i < 7; i++) {
       charElements[i] = document.getElementById(`c${i}`);
     }
 
     document.getElementById('startButton').addEventListener('click', async () => {
-      if (spinning) return;  // すでに回転している場合は何もしない
+      if (spinning) return;
       spinning = true;
       document.getElementById('startButton').disabled = true;
-
-      // スピン音を再生
       document.getElementById('spinSound').play();
 
-      // 最初にすべて回転させる
       for (let i = 0; i < 7; i++) {
         intervals[i] = startSpinning(i);
       }
 
-      // 順番に停止させる
+      await delay(1000);
+
       for (let i = 0; i < 7; i++) {
-        await stopSpinningWithDelay(i); // 500msごとに停止
+        await delay(500);
+        stopSpinning(i);
       }
 
-      // 停止音を再生
       document.getElementById('stopSound').play();
-
       document.getElementById('startButton').disabled = false;
       spinning = false;
     });
 
     function startSpinning(index) {
-      let previousChar = null;
       return setInterval(() => {
-        let randomChar;
-        do {
-          randomChar = baseChars[Math.floor(Math.random() * baseChars.length)];
-        } while (randomChar === previousChar); // 前回と同じ文字が選ばれた場合、再度ランダムに選ぶ
+        const randomChar = baseChars[Math.floor(Math.random() * baseChars.length)];
         charElements[index].textContent = randomChar;
-        previousChar = randomChar;
-      }, 30); // 高速回転
+      }, 30);
     }
 
-    async function stopSpinningWithDelay(index) {
-      await delay(500); // 500ms待機
+    function stopSpinning(index) {
       clearInterval(intervals[index]);
-      // ランダムに選ばれた文字のままで止める
-      const randomChar = baseChars[Math.floor(Math.random() * baseChars.length)];
-      charElements[index].textContent = randomChar;
+      const finalChar = baseChars[Math.floor(Math.random() * baseChars.length)];
+      charElements[index].textContent = finalChar;
     }
 
     function delay(ms) {
