@@ -60,15 +60,18 @@
       // スピン音を再生
       document.getElementById('spinSound').play();
 
-      // 各文字をランダムに回転
+      // 最初にすべて回転させる
       for (let i = 0; i < 7; i++) {
-        intervals[i] = startSpinning(i);  // 最初にランダムな文字で回転を開始
+        intervals[i] = startSpinning(i);
       }
 
-      // 1文字ごとに少し待ってから停止させる
+      // 1秒ごとに順番に1文字ずつ確定させる
+      await delay(1000);
+
+      // 順番に停止させる
       for (let i = 0; i < 7; i++) {
-        await delay(500);  // 文字ごとに0.5秒待機
-        stopSpinning(i);  // その文字を確定しないように、文字ごとに停止
+        await delay(500); // 文字ごとに待機
+        stopSpinning(i);
       }
 
       // 停止音を再生
@@ -87,9 +90,8 @@
 
     function stopSpinning(index) {
       clearInterval(intervals[index]);
-      // 文字を確定しない
-      // ただし確定した状態にならないよう、次回のクリックで再度回転する
-      charElements[index].textContent = baseChars[index];
+      // その文字をランダムに確定させる
+      charElements[index].textContent = baseChars[Math.floor(Math.random() * baseChars.length)];
     }
 
     function delay(ms) {
