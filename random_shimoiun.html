@@ -40,8 +40,7 @@
 
   <!-- 音声ファイルを追加 -->
   <audio id="spinSound" src="audio/ドラムロール.mp3" preload="auto"></audio>
-<audio id="stopSound" src="audio/ジャン！.mp3" preload="auto"></audio>
-
+  <audio id="stopSound" src="audio/ジャン！.mp3" preload="auto"></audio>
 
   <script>
     const baseChars = ["し", "も", "い", "ぬ", "れ", "い", "な"];
@@ -61,18 +60,16 @@
       // スピン音を再生
       document.getElementById('spinSound').play();
 
-      // 最初にすべて回転させる
+      // 1文字ずつ回転を始める
       for (let i = 0; i < 7; i++) {
-        intervals[i] = startSpinning(i);
+        intervals[i] = startSpinning(i);  // 最初にランダムな文字で回転を開始
+        await delay(500);  // 文字ごとに0.5秒待機
       }
 
-      // 1秒ごとに順番に1文字ずつ確定させる
-      await delay(1000);
-
-      // 順番に停止させる
+      // 各文字を順番に停止させる
       for (let i = 0; i < 7; i++) {
-        await delay(500); // 文字ごとに待機
-        stopSpinning(i);
+        await delay(500);  // 文字ごとに少し待機
+        stopSpinning(i);  // 各文字を確定させる
       }
 
       // 停止音を再生
@@ -91,7 +88,7 @@
 
     function stopSpinning(index) {
       clearInterval(intervals[index]);
-      // その文字を最終的に確定させる
+      // 確定した文字を設定（しもいぬれいな）
       charElements[index].textContent = baseChars[index];
     }
 
