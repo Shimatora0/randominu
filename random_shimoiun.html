@@ -41,6 +41,7 @@
   <!-- 音声ファイルを追加 -->
   <audio id="spinSound" src="audio/ドラムロール.mp3" preload="auto"></audio>
   <audio id="stopSound" src="audio/ジャン！.mp3" preload="auto"></audio>
+  <audio id="winSound" src="audio/男衆「イエーイ！」.mp3" preload="auto"></audio>
 
   <script>
     const baseChars = ["し", "も", "い", "ぬ", "れ", "い", "な"];
@@ -53,31 +54,34 @@
     }
 
     document.getElementById('startButton').addEventListener('click', async () => {
-      if (spinning) return;
+      if (spinning) return;  // すでに回転している場合は何もしない
       spinning = true;
       document.getElementById('startButton').disabled = true;
 
-      // スピン音再生
-      document.getElementById('spinSound').currentTime = 0;
+      // スピン音を再生
       document.getElementById('spinSound').play();
 
-      // すべて回転スタート
+      // 最初にすべて回転させる
       for (let i = 0; i < 7; i++) {
         intervals[i] = startSpinning(i);
       }
 
+      // 1秒ごとに順番に1文字ずつ確定させる
       await delay(1000);
 
-      // 1文字ずつ順番に止める（ランダム）
+      // 順番に停止させる
       for (let i = 0; i < 7; i++) {
-        await delay(500);
+        await delay(500); // 文字ごとに待機
         stopSpinning(i);
       }
 
-      // ドキドキさせてから停止音
-      await delay(500);
-      document.getElementById('stopSound').currentTime = 0;
+      // 停止音を再生
       document.getElementById('stopSound').play();
+
+      // もし「しもいぬれいな」が揃ったら別の音を再生
+      if (checkIfComplete()) {
+        document.getElementById('winSound').play();
+      }
 
       document.getElementById('startButton').disabled = false;
       spinning = false;
@@ -87,13 +91,20 @@
       return setInterval(() => {
         const randomChar = baseChars[Math.floor(Math.random() * baseChars.length)];
         charElements[index].textContent = randomChar;
-      }, 30);
+      }, 30); // 高速回転
     }
 
     function stopSpinning(index) {
       clearInterval(intervals[index]);
-      // 確定せず、ランダムにまま停止（純粋ランダム）
-      // 何も追加しないことで、最後に表示されていた文字がそのまま確定になる
+    }
+
+    function checkIfComplete() {
+      for (let i = 0; i < 7; i++) {
+        if (charElements[i].textContent !== baseChars[i]) {
+          return false;  // もし1文字でも一致しなければ揃っていない
+        }
+      }
+      return true;  // すべて一致していれば揃ったとみなす
     }
 
     function delay(ms) {
